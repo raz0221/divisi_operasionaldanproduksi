@@ -8,6 +8,7 @@ use App\Models\PegawaiModel;
 class Pegawai extends BaseController
 {
     protected $pegawaiModel;
+    protected $perPage = 10; // Jumlah data per halaman
 
     public function __construct()
     {
@@ -21,9 +22,36 @@ class Pegawai extends BaseController
             return redirect()->to('/login');
         }
 
+        // Ambil parameter filter dan sorting
+        $search = $this->request->getGet('search');
+        $filterJenisKelamin = $this->request->getGet('filter_jenis_kelamin');
+        $sortColumn = $this->request->getGet('sort_column') ?? 'nama_pegawai';
+        $sortOrder = $this->request->getGet('sort_order') ?? 'asc';
+        $page = $this->request->getGet('page') ?? 1;
+
+        // Hitung offset untuk pagination
+        $offset = ($page - 1) * $this->perPage;
+
+        // Ambil data dengan filter dan sorting
+        $pegawaiData = $this->pegawaiModel->getPegawai($search, $filterJenisKelamin, $this->perPage, $offset, $sortColumn, $sortOrder);
+        
+        // Hitung total data untuk pagination
+        $totalData = $this->pegawaiModel->countPegawai($search, $filterJenisKelamin);
+        $totalPages = ceil($totalData / $this->perPage);
+
         $data = [
             'title' => 'Data Pegawai',
-            'pegawai' => $this->pegawaiModel->findAll(),
+            'pegawai' => $pegawaiData,
+            'pager' => [
+                'current_page' => (int)$page,
+                'total_pages' => $totalPages,
+                'total_items' => $totalData,
+                'per_page' => $this->perPage
+            ],
+            'search' => $search,
+            'filter_jenis_kelamin' => $filterJenisKelamin,
+            'sort_column' => $sortColumn,
+            'sort_order' => $sortOrder,
             'user' => [
                 'name' => session()->get('name'),
                 'email' => session()->get('email'),
@@ -186,10 +214,7 @@ class Pegawai extends BaseController
             unlink('uploads/pegawai/' . $pegawai['foto_pegawai']);
         }
 
-        if ($this->pegawaiModel->delete($id)) {
-            return redirect()->to('/admin/pegawai')->with('success', 'Data pegawai berhasil dihapus.');
-        } else {
-            return redirect()->to('/admin/pegawai')->with('error', 'Terjadi kesalahan saat menghapus data pegawai.');
-        }
+        $this->pegawaiModel->delete($id);
+        return redirect()->to('/admin/pegawai')->with('success', 'Data pegawai berhasil dihapus.');
     }
 }

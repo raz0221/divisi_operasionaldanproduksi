@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?></title>
+    <title><?= $title ?> - Panel Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,6 +17,8 @@
             --medium-gray: #7f8c8d;
             --light-gray: #f8f9fa;
             --white: #ffffff;
+            --admin-accent: #1a73e8; /* Blue accent for admin */
+            --admin-accent-light: #4285f4; /* Light blue accent */
             
             /* Dark mode variables */
             --bg-primary: #ffffff;
@@ -39,6 +41,8 @@
             --medium-gray: #a0aec0;
             --light-gray: #2d3748;
             --white: #1a202c;
+            --admin-accent: #4285f4; /* Blue accent for dark mode */
+            --admin-accent-light: #64b5f6; /* Light blue accent for dark mode */
             
             --bg-primary: #1a202c;
             --bg-secondary: #2d3748;
@@ -59,14 +63,15 @@
             min-height: 100vh;
         }
         
-        /* Navbar Styling */
-        .navbar {
+        /* Admin Navbar Styling */
+        .navbar-admin {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 15px 0;
+            border-bottom: 3px solid var(--admin-accent); /* Blue accent border */
         }
         
-        .navbar-brand {
+        .navbar-admin .navbar-brand {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 20px;
@@ -74,46 +79,85 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid transparent;
         }
         
-        .navbar-brand i {
+        .navbar-admin .navbar-brand i {
             font-size: 24px;
+            color: var(--admin-accent); /* Blue icon */
         }
         
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+        .navbar-admin .navbar-brand:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            border-color: var(--admin-accent); /* Blue border on hover */
+        }
+        
+        .navbar-admin .nav-link {
+            color: rgba(255, 255, 255, 0.95) !important; /* Brighter text */
             font-weight: 500;
             font-size: 14px;
-            transition: color 0.2s ease;
+            transition: all 0.3s ease;
             padding: 8px 16px !important;
             border-radius: 6px;
+            text-decoration: none;
+            border: 1.5px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .nav-link:hover {
+        .navbar-admin .nav-link i {
+            color: var(--admin-accent); /* Blue icon */
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-admin .nav-link:hover {
             color: #ffffff !important;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--admin-accent); /* Blue border on hover */
         }
         
-        .navbar-text {
-            color: rgba(255, 255, 255, 0.9) !important;
+        .navbar-admin .nav-link:hover i {
+            transform: scale(1.2);
+        }
+        
+        .navbar-admin .navbar-text {
+            color: rgba(255, 255, 255, 0.95) !important; /* Brighter text */
             font-size: 14px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .btn-logout {
+        .navbar-admin .btn-logout {
             background: rgba(255, 255, 255, 0.15);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border: 1.5px solid var(--admin-accent); /* Blue border */
             color: white !important;
             font-weight: 500;
             font-size: 14px;
             padding: 8px 20px;
             border-radius: 6px;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .btn-logout:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
+        .navbar-admin .btn-logout:hover {
+            background: linear-gradient(135deg, var(--admin-accent) 0%, var(--admin-accent-light) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-color: transparent;
         }
         
         /* Main Content */
@@ -149,6 +193,7 @@
             margin-bottom: 25px;
             box-shadow: 0 5px 15px var(--shadow-color);
             transition: all 0.3s ease;
+            border-top: 3px solid var(--admin-accent); /* Blue accent border */
         }
         
         .dashboard-card:hover {
@@ -176,7 +221,7 @@
         .dashboard-card-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-light)); /* Blue gradient */
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -203,18 +248,35 @@
             flex-direction: column;
             align-items: center;
             height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-light)); /* Blue gradient */
+            transition: all 0.3s ease;
         }
         
         .module-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 20px var(--shadow-color);
-            border-color: var(--secondary-blue);
+            border-color: var(--admin-accent); /* Blue border on hover */
+        }
+        
+        .module-card:hover::before {
+            height: 5px;
         }
         
         .module-icon {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-light)); /* Blue gradient */
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -222,6 +284,11 @@
             color: white;
             font-size: 28px;
             margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .module-card:hover .module-icon {
+            transform: scale(1.1) rotate(5deg);
         }
         
         .module-title {
@@ -237,10 +304,11 @@
             font-size: 14px;
             margin-bottom: 20px;
             flex-grow: 1;
+            line-height: 1.5;
         }
         
         .btn-module {
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-light)); /* Blue gradient */
             border: none;
             border-radius: 6px;
             padding: 10px 24px;
@@ -258,7 +326,7 @@
         
         .btn-module:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); /* Blue shadow */
             color: white;
         }
         
@@ -284,24 +352,89 @@
             color: var(--text-primary);
             font-size: 20px;
             box-shadow: 0 4px 15px var(--shadow-color);
+            position: relative;
         }
         
         .theme-toggle-btn:hover {
             transform: translateY(-2px) rotate(15deg);
             box-shadow: 0 6px 20px var(--shadow-color);
+            border-color: var(--admin-accent); /* Blue border on hover */
         }
         
         .theme-toggle-btn i {
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, color 0.3s ease;
+            position: absolute;
         }
         
-        [data-theme="dark"] .fa-sun {
+        .theme-toggle-btn .fa-sun {
+            color: var(--admin-accent); /* Blue sun in light mode */
+        }
+        
+        .theme-toggle-btn .fa-moon {
+            color: var(--admin-accent-light); /* Light blue moon in dark mode */
+        }
+        
+        [data-theme="dark"] .theme-toggle-btn .fa-sun {
             transform: rotate(180deg);
-            color: #f6e05e;
+            color: var(--admin-accent-light); /* Light blue in dark mode */
         }
         
-        [data-theme="light"] .fa-moon {
-            color: #4a5568;
+        [data-theme="light"] .theme-toggle-btn .fa-moon {
+            color: var(--admin-accent); /* Blue in light mode */
+        }
+        
+        /* Stats Overview */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+            border-color: var(--admin-accent); /* Blue border on hover */
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-light)); /* Blue gradient */
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
         
         /* Responsive */
@@ -329,12 +462,29 @@
                 font-size: 18px;
             }
             
-            .navbar-nav {
+            .navbar-admin .navbar-collapse {
                 margin-top: 15px;
+                padding: 15px;
+                background: var(--card-bg);
+                border-radius: 8px;
+                box-shadow: 0 4px 15px var(--shadow-color);
             }
             
-            .nav-link, .navbar-text {
-                padding-left: 0 !important;
+            .navbar-admin .nav-link {
+                color: var(--text-primary) !important;
+                background: var(--bg-secondary);
+                border-color: var(--border-color);
+                margin-bottom: 5px;
+            }
+            
+            .navbar-admin .navbar-text {
+                color: var(--text-primary) !important;
+                justify-content: center;
+                padding: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -353,32 +503,32 @@
         </button>
     </div>
     
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <!-- Admin Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-admin">
         <div class="container">
             <a class="navbar-brand" href="/admin/dashboard">
                 <i class="fas fa-sliders-h"></i> PANEL ADMIN
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon" style="color: white;">☰</span>
+                <span style="color: white; font-size: 20px;">☰</span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-lg-center">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
                     <li class="nav-item">
-                        <a href="/admin/dashboard" class="nav-link">
-                            <i class="fas fa-home me-1"></i> Beranda
+                        <a href="/admin/dashboard" class="nav-link active">
+                            <i class="fas fa-home"></i> Beranda
                         </a>
                     </li>
                     <li class="nav-item">
                         <span class="navbar-text">
-                            <i class="fas fa-user-circle me-1"></i> Halo, <?= $user['name'] ?>
+                            <i class="fas fa-user-circle" style="color: var(--admin-accent);"></i> Halo, <?= $user['name'] ?>
                         </span>
                     </li>
-                    <li class="nav-item ms-lg-2">
-                        <a href="/logout" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt me-1"></i> Keluar
+                    <li class="nav-item">
+                        <a href="/logout" class="btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> Keluar
                         </a>
                     </li>
                 </ul>
@@ -394,18 +544,18 @@
             <p class="welcome-subtitle">Kelola semua sistem operasional dan produksi dari satu tempat</p>
         </div>
         
-        <!-- Stats Overview Card -->
+        <!-- Modules Card -->
         <div class="dashboard-card">
             <div class="dashboard-card-header">
                 <h3 class="dashboard-card-title">
                     <div class="dashboard-card-icon">
                         <i class="fas fa-tachometer-alt"></i>
                     </div>
-                    Ringkasan Sistem
+                    Modul Sistem
                 </h3>
             </div>
             <div class="card-body">
-                <p>Selamat datang di dashboard admin! Dari sini Anda dapat mengelola semua aspek sistem operasional dan produksi.</p>
+                <p>Pilih modul yang ingin Anda kelola. Setiap modul memungkinkan Anda mengelola data dan pengaturan terkait.</p>
                 
                 <!-- Modules Grid -->
                 <div class="module-grid">
@@ -417,7 +567,7 @@
                         <h4 class="module-title">Data Berita</h4>
                         <p class="module-description">Kelola artikel berita dan publikasi perusahaan</p>
                         <a href="/admin/news" class="btn-module">
-                            <i class="fas fa-cog me-1"></i> Kelola Berita
+                            <i class="fas fa-cog"></i> Kelola Berita
                         </a>
                     </div>
                     
@@ -429,12 +579,47 @@
                         <h4 class="module-title">Data Pegawai</h4>
                         <p class="module-description">Kelola data karyawan dan informasi personal</p>
                         <a href="/admin/pegawai" class="btn-module">
-                            <i class="fas fa-cog me-1"></i> Kelola Pegawai
+                            <i class="fas fa-cog"></i> Kelola Pegawai
+                        </a>
+                    </div>
+                    
+                    <!-- Data Aktivitas Harian Module -->
+                    <div class="module-card">
+                        <div class="module-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <h4 class="module-title">Data Aktivitas Harian</h4>
+                        <p class="module-description">Kelola aktivitas harian karyawan</p>
+                        <a href="/admin/aktivitas-harian" class="btn-module">
+                            <i class="fas fa-cog"></i> Kelola Aktivitas
+                        </a>
+                    </div>
+
+                    <!-- Data Biodata Module -->
+                    <div class="module-card">
+                        <div class="module-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <h4 class="module-title">Data Biodata</h4>
+                        <p class="module-description">Kelola biodata karyawan</p>
+                        <a href="/admin/biodata" class="btn-module">
+                            <i class="fas fa-cog"></i> Kelola Biodata
+                        </a>
+                    </div>
+
+                    <!-- Data Riwayat Pendidikan Module -->
+                    <div class="module-card">
+                        <div class="module-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h4 class="module-title">Data Riwayat Pendidikan</h4>
+                        <p class="module-description">Kelola riwayat pendidikan karyawan</p>
+                        <a href="/admin/riwayat-pendidikan" class="btn-module">
+                            <i class="fas fa-cog"></i> Kelola Pendidikan
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 
@@ -466,36 +651,12 @@
         function setDarkTheme() {
             body.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            
-            // Update table styling for dark mode
-            updateTableTheme('dark');
         }
         
         function setLightTheme() {
             body.setAttribute('data-theme', 'light');
             localStorage.setItem('theme', 'light');
-            
-            // Update table styling for light mode
-            updateTableTheme('light');
         }
-        
-        function updateTableTheme(theme) {
-            const tables = document.querySelectorAll('table');
-            tables.forEach(table => {
-                if (theme === 'dark') {
-                    table.classList.add('table-dark');
-                    table.classList.remove('table-light');
-                } else {
-                    table.classList.add('table-light');
-                    table.classList.remove('table-dark');
-                }
-            });
-        }
-        
-        // Initialize table theme
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTableTheme(body.getAttribute('data-theme'));
-        });
         
         // Module card hover effects
         const moduleCards = document.querySelectorAll('.module-card');
@@ -505,6 +666,20 @@
             });
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Update active nav link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-admin .nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentUrl) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
             });
         });
     </script>

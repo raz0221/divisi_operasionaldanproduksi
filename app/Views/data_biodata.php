@@ -1,0 +1,514 @@
+<?= $this->extend('layout/page_layout') ?>
+
+<?= $this->section('content') ?>
+
+<div class="dashboard-container">
+    <!-- Header dengan Tombol dan Pencarian -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="dashboard-title">Data Biodata</h1>
+            <p class="dashboard-subtitle">Lihat informasi biodata lengkap (read-only)</p>
+        </div>
+        
+        <!-- Form Pencarian dan Filter -->
+        <form method="GET" action="<?= base_url('biodata') ?>" class="d-flex gap-2">
+            <div class="input-group" style="width: 250px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Cari semua kolom..." 
+                       value="<?= esc($search ?? '') ?>">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <select name="filter_jenis_kelamin" class="form-control" style="width: 150px;">
+                <option value="">Semua Gender</option>
+                <option value="laki-laki" <?= ($filter_jenis_kelamin ?? '') == 'laki-laki' ? 'selected' : '' ?>>Laki-laki</option>
+                <option value="perempuan" <?= ($filter_jenis_kelamin ?? '') == 'perempuan' ? 'selected' : '' ?>>Perempuan</option>
+            </select>
+            
+            <select name="filter_agama" class="form-control" style="width: 150px;">
+                <option value="">Semua Agama</option>
+                <?php foreach (($agamaList ?? ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu']) as $agama): ?>
+                    <option value="<?= $agama ?>" <?= ($filter_agama ?? '') == $agama ? 'selected' : '' ?>>
+                        <?= $agama ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <input type="hidden" name="sort_column" value="<?= $sort_column ?? 'nama' ?>">
+            <input type="hidden" name="sort_order" value="<?= $sort_order ?? 'asc' ?>">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <a href="<?= base_url('biodata') ?>" class="btn btn-outline-secondary">
+                <i class="fas fa-redo"></i> Reset
+            </a>
+        </form>
+    </div>
+
+    <!-- Card untuk Konten Utama -->
+    <div class="dashboard-card">
+        <!-- Informasi Hasil Pencarian -->
+        <?php if (!empty($search) || !empty($filter_jenis_kelamin) || !empty($filter_agama)): ?>
+        <div id="searchInfo" class="alert alert-info mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            Menampilkan <?= count($biodata) ?> dari <?= $total_biodata ?? count($biodata) ?> data
+            <?php if (!empty($search)): ?>
+                | Pencarian: "<?= esc($search) ?>"
+            <?php endif; ?>
+            <?php if (!empty($filter_jenis_kelamin)): ?>
+                | Gender: <?= $filter_jenis_kelamin == 'laki-laki' ? 'Laki-laki' : 'Perempuan' ?>
+            <?php endif; ?>
+            <?php if (!empty($filter_agama)): ?>
+                | Agama: <?= esc($filter_agama) ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if (empty($biodata)): ?>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Tidak ada data biodata yang tersedia.
+            </div>
+        <?php else: ?>
+            <!-- Tabel Data Biodata -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>
+                                <a href="<?= base_url('biodata?' . http_build_query([
+                                    'search' => $search ?? '',
+                                    'filter_jenis_kelamin' => $filter_jenis_kelamin ?? '',
+                                    'filter_agama' => $filter_agama ?? '',
+                                    'sort_column' => 'nama',
+                                    'sort_order' => ($sort_column ?? '') == 'nama' && ($sort_order ?? 'asc') == 'asc' ? 'desc' : 'asc',
+                                    'page' => $pager['current_page'] ?? 1
+                                ])) ?>">
+                                    Nama Lengkap
+                                    <?php if (($sort_column ?? '') == 'nama'): ?>
+                                        <i class="fas fa-sort-<?= ($sort_order ?? 'asc') == 'asc' ? 'up' : 'down' ?> ms-1"></i>
+                                    <?php else: ?>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
+                                    <?php endif; ?>
+                                </a>
+                            </th>
+                            <th>TTL</th>
+                            <th>Gender</th>
+                            <th>Agama</th>
+                            <th>Alamat</th>
+                            <th>Kontak</th>
+                            <th>Status</th>
+                            <th>Pekerjaan & Pendidikan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <?php $no = (($pager['current_page'] ?? 1) - 1) * ($pager['per_page'] ?? 10) + 1; ?>
+                        <?php foreach ($biodata as $b): ?>
+                        <tr class="data-row">
+                            <td><?= $no++ ?></td>
+                            <td><?= esc($b['nama']) ?></td>
+                            <td>
+                                <?= esc($b['tempat_lahir']) ?><br>
+                                <small class="text-muted">
+                                    <?= date('d/m/Y', strtotime($b['tanggal_lahir'])) ?>
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge gender-badge" data-gender="<?= $b['jenis_kelamin'] ?>">
+                                    <i class="fas fa-<?= $b['jenis_kelamin'] == 'laki-laki' ? 'male' : 'female' ?> me-1"></i>
+                                    <?= ucfirst($b['jenis_kelamin']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary"><?= esc($b['agama']) ?></span>
+                            </td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;" title="<?= esc($b['alamat']) ?>">
+                                    <?= esc($b['alamat']) ?>
+                                </div>
+                            </td>
+                            <td>
+                                <div><i class="fas fa-envelope me-1 text-primary"></i> <?= esc($b['email']) ?></div>
+                                <div><i class="fas fa-phone me-1 text-success"></i> <?= esc($b['no_telpon']) ?></div>
+                            </td>
+                            <td>
+                                <span class="badge status-badge"><?= esc($b['status_perkawinan']) ?></span>
+                            </td>
+                            <td>
+                                <div><i class="fas fa-briefcase me-1 text-warning"></i> <?= esc($b['pekerjaan']) ?></div>
+                                <div><i class="fas fa-graduation-cap me-1 text-info"></i> <?= esc($b['pendidikan_terakhir']) ?></div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <?php if (($pager['total_pages'] ?? 1) > 1): ?>
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <?= ($pager['current_page'] ?? 1) == 1 ? 'disabled' : '' ?>">
+                        <a class="page-link" 
+                           href="<?= base_url('biodata?' . http_build_query([
+                               'search' => $search ?? '',
+                               'filter_jenis_kelamin' => $filter_jenis_kelamin ?? '',
+                               'filter_agama' => $filter_agama ?? '',
+                               'sort_column' => $sort_column ?? 'nama',
+                               'sort_order' => $sort_order ?? 'asc',
+                               'page' => (($pager['current_page'] ?? 1) - 1)
+                           ])) ?>">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    
+                    <?php for ($i = 1; $i <= ($pager['total_pages'] ?? 1); $i++): ?>
+                        <?php if ($i == 1 || $i == ($pager['total_pages'] ?? 1) || ($i >= ($pager['current_page'] ?? 1) - 2 && $i <= ($pager['current_page'] ?? 1) + 2)): ?>
+                            <li class="page-item <?= $i == ($pager['current_page'] ?? 1) ? 'active' : '' ?>">
+                                <a class="page-link" 
+                                   href="<?= base_url('biodata?' . http_build_query([
+                                       'search' => $search ?? '',
+                                       'filter_jenis_kelamin' => $filter_jenis_kelamin ?? '',
+                                       'filter_agama' => $filter_agama ?? '',
+                                       'sort_column' => $sort_column ?? 'nama',
+                                       'sort_order' => $sort_order ?? 'asc',
+                                       'page' => $i
+                                   ])) ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php elseif ($i == ($pager['current_page'] ?? 1) - 3 || $i == ($pager['current_page'] ?? 1) + 3): ?>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    
+                    <li class="page-item <?= ($pager['current_page'] ?? 1) == ($pager['total_pages'] ?? 1) ? 'disabled' : '' ?>">
+                        <a class="page-link" 
+                           href="<?= base_url('biodata?' . http_build_query([
+                               'search' => $search ?? '',
+                               'filter_jenis_kelamin' => $filter_jenis_kelamin ?? '',
+                               'filter_agama' => $filter_agama ?? '',
+                               'sort_column' => $sort_column ?? 'nama',
+                               'sort_order' => $sort_order ?? 'asc',
+                               'page' => (($pager['current_page'] ?? 1) + 1)
+                           ])) ?>">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="text-center text-muted mt-2">
+                <i class="fas fa-layer-group me-1"></i>
+                Halaman <?= $pager['current_page'] ?? 1 ?> dari <?= $pager['total_pages'] ?? 1 ?>
+                | Total <?= $pager['total_items'] ?? 0 ?> data
+            </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-blue: #2c3e50;
+    --secondary-blue: #3498db;
+    --accent-blue: #1a5276;
+    --light-blue: #e8f4fc;
+    --dark-gray: #2c3e50;
+    --medium-gray: #7f8c8d;
+    --light-gray: #f8f9fa;
+    --white: #ffffff;
+    
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+    --primary-blue: #4a90e2;
+    --secondary-blue: #63b3ed;
+    --accent-blue: #2c5282;
+    --light-blue: #1a202c;
+    --dark-gray: #e2e8f0;
+    --medium-gray: #a0aec0;
+    --light-gray: #2d3748;
+    --white: #1a202c;
+    
+    --bg-primary: #1a202c;
+    --bg-secondary: #2d3748;
+    --text-primary: #e2e8f0;
+    --text-secondary: #a0aec0;
+    --card-bg: #2d3748;
+    --border-color: #4a5568;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--bg-secondary) 100%);
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
+    transition: background 0.3s ease;
+    color: var(--text-primary);
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.dashboard-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 5px 0 0 0;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    transition: all 0.3s ease;
+}
+
+/* Tombol style seperti login.php */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    transition: all 0.2s ease;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 1.5px solid var(--primary-blue);
+    color: var(--primary-blue);
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-outline-secondary:hover {
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    color: white;
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+}
+
+/* Form style */
+.form-control {
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    height: 42px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    border-color: var(--secondary-blue);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.input-group-text {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Table style */
+.table {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    font-weight: 600;
+    padding: 15px 12px;
+    color: var(--text-primary);
+}
+
+.table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-secondary);
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+/* Badge style */
+.badge {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.gender-badge[data-gender="laki-laki"] {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    color: #0d6efd !important;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+}
+
+.gender-badge[data-gender="perempuan"] {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #198754 !important;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+.status-badge {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    color: #0dcaf0 !important;
+    border: 1px solid rgba(13, 202, 240, 0.2);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Alert style */
+.alert {
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--secondary-blue);
+    color: var(--text-primary);
+}
+
+.alert-info {
+    background: rgba(52, 152, 219, 0.1);
+    border-left: 3px solid var(--secondary-blue);
+}
+
+/* Pagination style */
+.page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 16px;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+}
+
+.page-link:hover {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+    
+    .dashboard-card {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .d-flex.gap-2 {
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .input-group,
+    .form-control {
+        width: 100% !important;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 14px;
+    }
+    
+    .table td, .table th {
+        padding: 8px;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+}
+
+/* Theme transition */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Tombol clear search
+    $('#clearSearch').on('click', function() {
+        window.location.href = '<?= base_url('biodata') ?>';
+    });
+});
+</script>
+
+<?= $this->endSection() ?>

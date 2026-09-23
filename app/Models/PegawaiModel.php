@@ -31,11 +31,44 @@ class PegawaiModel extends Model
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    public function getPegawai($id = false)
-    {
-        if ($id === false) {
-            return $this->findAll();
-        }
-        return $this->where(['id_pegawai' => $id])->first();
+    public function getPegawai($search = null, $gender = null, $limit = 10, $offset = 0, $sort_column = 'nama_pegawai', $sort_order = 'asc')
+{
+    $builder = $this->builder();
+    
+    if ($search) {
+        $builder->groupStart()
+                ->like('nama_pegawai', $search)
+                ->orLike('jenis_kelamin', $search)
+                ->orLike('tanggal_lahir', $search)
+                ->groupEnd();
     }
+    
+    if ($gender) {
+        $builder->where('jenis_kelamin', $gender);
+    }
+    
+    $builder->orderBy($sort_column, $sort_order)
+            ->limit($limit, $offset);
+    
+    return $builder->get()->getResultArray();
+}
+
+public function countPegawai($search = null, $gender = null)
+{
+    $builder = $this->builder();
+    
+    if ($search) {
+        $builder->groupStart()
+                ->like('nama_pegawai', $search)
+                ->orLike('jenis_kelamin', $search)
+                ->orLike('tanggal_lahir', $search)
+                ->groupEnd();
+    }
+    
+    if ($gender) {
+        $builder->where('jenis_kelamin', $gender);
+    }
+    
+    return $builder->countAllResults();
+}
 }
